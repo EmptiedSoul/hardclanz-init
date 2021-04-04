@@ -1,0 +1,46 @@
+#!/bin/bash
+
+require_root(){
+	[[ $UID == "0" ]] || { echo "service: must be superuser"; exit 0; }
+}
+
+get_service_status(){
+	[[ -e "/run/service/$1" ]] || { echo -e "[ \e[1;34mdisabled\e[0m ] $1"; return; }
+	local status="$(cat /run/service/$1/status)"
+	case $status in
+		run*)		echo -e "[ \e[1;32mrunnning\e[0m ] $1";;
+		exited=0*)	echo -e "[  \e[1;32mexited\e[0m  ] $1";;
+		kill*)		echo -e "[  \e[1;31mkilled\e[0m  ] $1";;
+		*)		echo -e "[  \e[1;31mfailed\e[0m  ] $1";;
+	esac
+}
+case $1 in
+	list)	ls /etc/init.d;;
+	status)	[[ -z "$2" ]] || { get_service_status $2; exit; }
+		{
+			for service in $(ls -1 /etc/init.d)
+			do
+				get_service_status $service
+			done
+			unset service
+		};;
+	start)
+		require_root
+		pushd /etc/rc.d &>/dev/null
+			make $2
+		popd &>/dev/null;;
+	stop)
+		require_root
+		pid="$(cat /run/service/$2/supervisor)"
+		kill -15 $pid &>/dev/null || echo "service: unable to kill"
+		;;
+	reload)
+		require_root
+		pid="$(cat /run/service/$2/supervisor)"
+		kill -1 $pid || echo "service: unable to reload"
+		;;
+	restart)
+		$0 stop $2 && $0 start $2;;
+esac
+
+		

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for initscript in $(ls -1 $1)
+do
+	{ [[ "$initscript" == "lib" ]] || [[ "$initscript" == "Makefile" ]]; } && continue
+	INITSCRIPT_USER="$(awk '/# rc: run-as:/  { $1=$2=$3=""; print $0; }' $1/$initscript)"
+	HD_COMMAND_LINE="$(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
+	echo 	"$initscript: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
+	echo -e "\tcd $1 && \\"
+	echo -e	"\tRUN_DAEMON_USER=\"${INITSCRIPT_USER}\" hd ${HD_COMMAND_LINE:--o} -s ./$initscript"
+done

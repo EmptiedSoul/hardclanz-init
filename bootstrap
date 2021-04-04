@@ -1,0 +1,5 @@
+#!/bin/bash
+
+git submodule update --init --recursive && mv .Makefile Makefile
+
+echo Now you can run make
