@@ -7,5 +7,5 @@ do
 	HD_COMMAND_LINE="$(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	echo 	"$initscript: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	echo -e "\tcd $1 && \\"
-	echo -e	"\tRUN_DAEMON_USER=\"${INITSCRIPT_USER}\" hd ${HD_COMMAND_LINE:--o} -s ./$initscript"
+	echo -e	"\tRUN_DAEMON_USER=\"${INITSCRIPT_USER}\" /sbin/hd ${HD_COMMAND_LINE:--o} -s ./$initscript"
 done

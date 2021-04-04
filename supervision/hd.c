@@ -115,7 +115,8 @@ int main(int argc, char* argv[], char* envp[]){
 			snprintf(service_dir, 1024, "/run/service/%s", command);
 			snprintf(hd_pidfile, 1024, "/run/service/%s/supervisor", command);
 			snprintf(service_pidfile, 1024, "/run/service/%s/pid", command);
-			snprintf(service_statfile, 1024, "/run/service/%s/status", command);	
+			snprintf(service_statfile, 1024, "/run/service/%s/status", command);
+			mkdir(service_dir, 0755);
 			FILE* hd_pidfile_fd 		= fopen(hd_pidfile, "w"); 
 			FILE* service_pidfile_fd	= fopen(service_pidfile, "w"); 
 			FILE* service_statfile_fd	= fopen(service_statfile, "w"); 
@@ -133,7 +134,6 @@ int main(int argc, char* argv[], char* envp[]){
 					FILE* hd_pidfile_fd 		= fopen(hd_pidfile, "w");
 					FILE* service_pidfile_fd	= fopen(service_pidfile, "w");
 					FILE* service_statfile_fd	= fopen(service_statfile, "w");
-					mkdir(service_dir, 0755);
 					fprintf(hd_pidfile_fd, "%d    ", getppid());
 					fprintf(service_pidfile_fd, "%d    ", getpid());
 					fprintf(service_statfile_fd, "%s    ", "running");
