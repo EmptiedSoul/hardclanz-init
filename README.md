@@ -1,2 +1,2 @@
 # hardclanz-init
-sysv-style init system based on supervision
+sysv-style supervision-based init system

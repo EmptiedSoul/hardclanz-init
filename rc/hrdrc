@@ -12,9 +12,13 @@ case $1 in
 		cd /etc/rc.d
 		exec make -s $1 -j
 		;;
-	0|6)
+	0)
 		cd /etc/rc.d
-		exec make -s $1
+		make -s 0 -j && make -s halt
+		;;
+	6)
+		cd /etc/rc.d
+		make -s 6 -j && make -s reboot
 		;;
 	*)
 		echo "hrdrc: Usage: hrdrc [0-6]"
