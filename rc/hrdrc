@@ -5,13 +5,16 @@
 
 mountpoint /run &>/dev/null || {
 	mount /run
-	mkdir /run/service
 }
-
+mkdir /run/service
 case $1 in
-	[0-6]|S)
+	[1-5]|S)
 		cd /etc/rc.d
 		exec make -s $1 -j
+		;;
+	0|6)
+		cd /etc/rc.d
+		exec make -s $1
 		;;
 	*)
 		echo "hrdrc: Usage: hrdrc [0-6]"

@@ -41,6 +41,10 @@ case $1 in
 		;;
 	restart)
 		$0 stop $2 && $0 start $2;;
+	get-supervisor)
+		echo "$(cat /run/service/$2/supervisor)";;
+	get-pid)
+		echo "$(cat /run/service/$2/pid)";;
 esac
 
-		
+exit	
