@@ -40,9 +40,18 @@ msg_info(){
 eval_retval(){
 	local retval=${?}
 	case $retval in
-		$SUCCESS) msg_ok   "$SUCCESS_MSG";;
-		$WARN)	  msg_warn "$WARN_MSG";;
-		$FAIL)    msg_fail "$FAIL_MSG";;
+		$SUCCESS) 	
+			msg_ok   "$SUCCESS_MSG"
+			[[ -n "$SUCCESS_ACT" ]] && eval "$SUCCESS_ACT"
+		;;
+		$WARN)	  
+			msg_warn "$WARN_MSG"
+			[[ -n "$WARN_ACT" ]] && eval "$WARN_ACT"
+		;;
+		$FAIL)    
+			msg_fail "$FAIL_MSG"
+			[[ -n "$FAIL_ACT" ]] && eval "$FAIL_ACT"
+		;;	
 	esac
 	is_true "$EVAL_EXIT" && exit $retval
 	return 0

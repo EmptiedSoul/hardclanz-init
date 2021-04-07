@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /etc/rc.d/lib/functions.sh
+
 require_root(){
 	[[ $UID == "0" ]] || { echo "service: must be superuser"; exit 0; }
 }
@@ -27,10 +29,16 @@ case $1 in
 	start)
 		require_root
 		pushd /etc/rc.d &>/dev/null
-			make $2
+			make -s $2 -j
 		popd &>/dev/null;;
 	stop)
 		require_root
+		[[ -e /etc/init.d/stop_$2 ]] && {
+			/etc/init.d/stop_$2 && \
+				msg_ok "Stopped $2" || \
+				msg_fail "Failed to stop $2"
+			exit 0;
+		}
 		pid="$(cat /run/service/$2/supervisor)"
 		kill -15 $pid &>/dev/null || echo "service: unable to kill"
 		;;
