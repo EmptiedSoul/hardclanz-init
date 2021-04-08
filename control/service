@@ -35,12 +35,15 @@ case $1 in
 		require_root
 		[[ -e /etc/init.d/stop_$2 ]] && {
 			/etc/init.d/stop_$2 && \
-				msg_ok "Stopped $2" || \
+				{ msg_ok "Stopped $2" 
+					echo "stopped     " > /run/service/$2/status	
+				} || \
 				msg_fail "Failed to stop $2"
 			exit 0;
 		}
 		pid="$(cat /run/service/$2/supervisor)"
 		kill -15 $pid &>/dev/null || echo "service: unable to kill"
+		echo "stopped      " > /run/service/$2/status
 		;;
 	reload)
 		require_root
@@ -54,7 +57,7 @@ case $1 in
 	get-pid)
 		echo "$(cat /run/service/$2/pid)";;
 	is-running)
-		[[ -e "/run/service/$2" ]] || { echo -e "[ \e[1;34mdisabled\e[0m ] $2"; exit 1; }
+		[[ -e "/run/service/$2" ]] || { exit 1; }
 		local status="$(cat /run/service/$2/status)"
 		case $status in
 			run*)		exit 0;;

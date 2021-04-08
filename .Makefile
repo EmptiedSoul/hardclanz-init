@@ -10,7 +10,6 @@ install: all
 	install -vm755 supervision/hd		/sbin/hd
 	mkdir   -pv    /etc/init.d
 	mkdir   -pv    /etc/rc.d/{lib,S,0,1,2,3,4,5,6}
-	ln	-sv    /etc/init.d 		/etc/rc.d/init.d
 	install -vm755 rc/hdcompile		/sbin/hdcompile
 	install -vm755 rc/hrdrc			/etc/rc.d/hrdrc
 	install -vm755 rc/lib/functions.sh	/etc/rc.d/lib/functions.sh

@@ -26,5 +26,5 @@ do
 		echo -e "\tcd $1 && \\"
 		echo -e	"\tRUN_DAEMON_USER=\"${INITSCRIPT_USER}\" /sbin/hd ${HD_COMMAND_LINE:--o} -s ./$initscript; }"
 	echo -e "stop_$initscript:"
-		echo -e "\tservice stop $initscript"
+		echo -e "\tservice is-running $initscript && service stop $initscript; exit 0"
 done

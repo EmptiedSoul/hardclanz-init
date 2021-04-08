@@ -13,28 +13,33 @@ is_true(){
 	esac
 }
 
+_echo(){
+	echo -e "$*" 
+	echo -e "$*" >> /run/bootlog
+}
+
 run_daemon(){
 	exec runuser -u ${RUN_DAEMON_USER:-root} -- $*
 }
 
 msg_ok(){
-	echo -e "[ ${GREEN_COLOR}OK${CLEAR_COLOR} ] $*" 
+	_echo "[ ${GREEN_COLOR}OK${CLEAR_COLOR} ] $*" 
 }
 
 msg_pending(){
-	echo -e "       $*"
+	_echo "       $*"
 }
 
 msg_fail(){
-	echo -e "[${RED_COLOR}FAIL${CLEAR_COLOR}] $*"
+	_echo "[${RED_COLOR}FAIL${CLEAR_COLOR}] $*"
 }
 
 msg_warn(){
-	echo -e "[${YELLOW_COLOR}WARN${CLEAR_COLOR}] $*"
+	_echo "[${YELLOW_COLOR}WARN${CLEAR_COLOR}] $*"
 }
 
 msg_info(){
-	echo -e "[${BLUE_COLOR}INFO${CLEAR_COLOR}] $*"
+	_echo "[${BLUE_COLOR}INFO${CLEAR_COLOR}] $*"
 }
 
 eval_retval(){
