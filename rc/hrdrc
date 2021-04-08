@@ -6,22 +6,31 @@
 mountpoint /run &>/dev/null || {
 	mount /run
 }
-mkdir /run/service
+mkdir /run/service &>/dev/null
 case $1 in
-	[1-5]|S)
+	S)
 		cd /etc/rc.d
-		exec make -s $1 -j
+		echo 
+		echo "HarDClanZ-Init is booting $(cat /etc/hostname)"
+		echo
+		make -s $1 -j || /sbin/sulogin
+		[[ "$GET_SHELL_AFTER_S" == "YES" ]] && /bin/bash
+		;;
+	[1-5])
+		cd /etc/rc.d
+		make -s $1 -j || /sbin/sulogin
 		;;
 	0)
 		cd /etc/rc.d
-		make -s 0 -j && make -s halt
+		{ make -s 0 -j && make -s halt; } || /sbin/sulogin
 		;;
 	6)
 		cd /etc/rc.d
-		make -s 6 -j && make -s reboot
+		{ make -s 6 -j && make -s reboot; } || /sbin/sulogin
 		;;
 	*)
 		echo "hrdrc: Usage: hrdrc [0-6]"
 		exit 1
 		;;
 esac
+exit
