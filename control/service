@@ -13,6 +13,7 @@ get_service_status(){
 		run*)		echo -e "[ \e[1;32mrunnning\e[0m ] $1";;
 		exited=0*)	echo -e "[  \e[1;32mexited\e[0m  ] $1";;
 		kill*)		echo -e "[  \e[1;31mkilled\e[0m  ] $1";;
+		stop*)		echo -e "[ \e[1;33mstopped\e[0m  ] $1";;
 		*)		echo -e "[  \e[1;31mfailed\e[0m  ] $1";;
 	esac
 }
@@ -58,7 +59,7 @@ case $1 in
 		echo "$(cat /run/service/$2/pid)";;
 	is-running)
 		[[ -e "/run/service/$2" ]] || { exit 1; }
-		local status="$(cat /run/service/$2/status)"
+		status="$(cat /run/service/$2/status)"
 		case $status in
 			run*)		exit 0;;
 			exited=0*)	exit 0;;
