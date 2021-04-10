@@ -11,10 +11,10 @@ case $1 in
 	S)
 		cd /etc/rc.d
 		echo 
-		echo "HarDClanZ-Init is booting $(cat /etc/hostname)"
+		echo -e "\t\e[1;32mhardclanz-init\e[0m \e[1mis booting\e[0m \e[1;34m$(cat /etc/hostname)\e[0m"
 		echo
 		make -s $1 -j || /sbin/sulogin
-		[[ "$GET_SHELL_AFTER_S" == "YES" ]] && /bin/bash
+		[[ -n $init_stop ]] && /bin/bash
 		;;
 	[1-5])
 		cd /etc/rc.d

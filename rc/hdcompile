@@ -8,10 +8,12 @@ do
 	unset RUNLEVEL
 done
 
-echo    "halt: $(grep stop_ -R ./{S,0,1,2,3,4,5,6} | sed -e 's/^.*://' -e 's/[[:space:]]*$//' | sort | uniq | tr '\n' ' ')"
+#echo    "halt: $(grep stop_ -R ./{S,0,1,2,3,4,5,6} | sed -e 's/^.*://' -e 's/[[:space:]]*$//' | sort | uniq | tr '\n' ' ')"
+echo	"halt: "
 echo -e "\tcd $1 && ./sendsignals && ./halt"
 
-echo	"reboot: $(grep stop_ -R ./{S,0,1,2,3,4,5,6} | sed -e 's/^.*://' -e 's/[[:space:]]*$//' | sort | uniq | tr '\n' ' ')"
+#echo	"reboot: $(grep stop_ -R ./{S,0,1,2,3,4,5,6} | sed -e 's/^.*://' -e 's/[[:space:]]*$//' | sort | uniq | tr '\n' ' ')"
+echo 	"reboot:"
 echo -e	"\tcd $1 && ./sendsignals && ./reboot"
 
 for initscript in $(ls -1 $1)
@@ -25,6 +27,6 @@ do
 		echo -e "\t{ service is-running $initscript && exit 0; \\"
 		echo -e "\tcd $1 && \\"
 		echo -e	"\tRUN_DAEMON_USER=\"${INITSCRIPT_USER}\" /sbin/hd ${HD_COMMAND_LINE:--o} -s ./$initscript; }"
-	echo -e "stop_$initscript:"
+	echo -e "stop_$initscript: $(awk '/# rc: stop-depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 		echo -e "\tservice is-running $initscript && service stop $initscript; exit 0"
 done
