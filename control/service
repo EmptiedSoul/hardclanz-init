@@ -84,15 +84,15 @@ case $1 in
 		service="$2"
 		runlevel="$3"
 		{ [[ -z "$service" ]] || [[ -z "$runlevel" ]]; } && \
-			echo "Usage: ${0##*/} enable <service> <0-6,S>" && exit 1
+			{ echo "Usage: ${0##*/} enable <service> <0-6,S>"; exit 1; }
 		[[ -e "/etc/init.d/$service" ]] || \
-			echo "$service: no such service" && exit 1
+			{ echo "$service: no such service"; exit 1; }
 		case $runlevel in
 			[0-6]|S) true;;
 			*) echo "Usage: ${0##*/} enable <service> <0-6,S>" && exit 1;;
 		esac
 		grep -q $service /etc/rc.d/$runlevel/depends && \
-			echo "$service: already enabled" && exit 1
+			{ echo "$service: already enabled"; exit 1; }
 		echo $service >> /etc/rc.d/$runlevel/depends
 		$0 rc-recompile
 		;;
@@ -101,18 +101,37 @@ case $1 in
 		service="$2"
 		runlevel="$3"
 		{ [[ -z "$service" ]] || [[ -z "$runlevel" ]]; } && \
-			echo "Usage: ${0##*/} disable <service> <0-6,S>" && exit 1
+			{ echo "Usage: ${0##*/} disable <service> <0-6,S>"; exit 1; }
 		[[ -e "/etc/init.d/$service" ]] || \
-			echo "$service: no such service" && exit 1
+			{ echo "$service: no such service"; exit 1; }
 		case $runlevel in
 			[0-6]|S) true;;
 			*) echo "Usage: ${0##*/} disable <service> <0-6,S>" && exit 1;;
 		esac
 		grep -q $service /etc/rc.d/$runlevel/depends || \
-			echo "$service: already disabled" && exit 1
+			{ echo "$service: already disabled"; exit 1; }
 		sed -i "/$service/d" /etc/rc.d/$runlevel/depends
 		$0 rc-recompile
 		;;
+	info)
+		service="$2"
+		[[ -e /etc/init.d/$service ]] || {
+			echo "$service: no such service"
+			exit 1;
+		}
+		echo "* $service - $(awk '/# rc: description:/ { $1=$2=$3=""; print $0; }' /etc/init.d/$service)"
+		[[ -e /run/service/$service ]] && {
+			echo -e "\tStatus: $(cat /run/service/$service/status)"
+			echo -e "\tSupervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' /etc/init.d/$service)"
+			echo -e "\tDepends: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' /etc/init.d/$service)"
+		}
+		[[ -e /run/service/$service/pid ]] && {
+			echo -e "\tMain PID: $(cat /run/service/$service/pid)"
+			echo -e "\tSupervisor PID: $(cat /run/service/$)"
+			echo -e "\tRunning since: $(date --date=\"@$(stat /run/service/$service/pid -c '%Y')\")"
+			echo -e "\tSupervising since: $(date --date=\"@$(stat /run/service/$service/supervisor -c '%Y')\")"
+		}
+		tail /var/log/service/$service.log
 esac
 
 exit	

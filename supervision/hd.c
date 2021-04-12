@@ -112,6 +112,7 @@ int main(int argc, char* argv[], char* envp[]){
 			supervising:
 			openlog(NULL, LOG_PID, LOG_DAEMON); 
 			syslog(LOG_INFO, "Started supervisor, pid=%d", getpid());
+			closelog();
 			snprintf(service_dir, 1024, "/run/service/%s", command);
 			snprintf(hd_pidfile, 1024, "/run/service/%s/supervisor", command);
 			snprintf(service_pidfile, 1024, "/run/service/%s/pid", command);
@@ -123,6 +124,7 @@ int main(int argc, char* argv[], char* envp[]){
 			restart: 
 			switch(pid = fork()){
 				case -1:
+					openlog(NULL, LOG_PID, LOG_DAEMON); 
 					syslog(LOG_ERR, "Failed to fork: %s", strerror(errno));
 					closelog();
 					exit(1);
@@ -161,6 +163,7 @@ int main(int argc, char* argv[], char* envp[]){
 					}else{
 						fprintf(service_statfile_fd, "killed      ");
 					}
+					openlog(NULL, LOG_PID, LOG_DAEMON); 
 					syslog(LOG_INFO, "%s exited", command);
 					closelog();
 					fclose(hd_pidfile_fd);
@@ -174,6 +177,7 @@ int main(int argc, char* argv[], char* envp[]){
 					if (WIFEXITED(status)){
 						if (WEXITSTATUS(status) == 0){
 							fprintf(service_statfile_fd, "exited=0   ");
+							openlog(NULL, LOG_PID, LOG_DAEMON); 
 							syslog(LOG_INFO, "%s exited with 0 exit code", command);
 							closelog();
 							fclose(hd_pidfile_fd);
@@ -196,6 +200,7 @@ int main(int argc, char* argv[], char* envp[]){
 				}else{
 					fprintf(service_statfile_fd, "killed       ");
 				}
+				openlog(NULL, LOG_PID, LOG_DAEMON); 
 				syslog(LOG_INFO, "%s exited", command);
 				closelog();
 				fclose(hd_pidfile_fd);
