@@ -61,3 +61,9 @@ eval_retval(){
 	is_true "$EVAL_EXIT" && exit $retval
 	return 0
 }
+
+[[ -e "/etc/rc.conf" ]] && \
+	. /etc/rc.conf
+[[ -e "/etc/conf.d/${0##*/}.conf" ]] && \
+	. /etc/conf.d/${0##*/}.conf
+

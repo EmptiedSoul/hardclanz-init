@@ -119,11 +119,11 @@ case $1 in
 			echo "$service: no such service"
 			exit 1;
 		}
-		echo "* $service - $(awk '/# rc: description:/ { $1=$2=$3=""; print $0; }' /etc/init.d/$service)"
+		echo "* $service - $(awk '/# rc: description:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
 		[[ -e /run/service/$service ]] && {
 			echo -e "\tStatus: $(cat /run/service/$service/status)"
-			echo -e "\tSupervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' /etc/init.d/$service)"
-			echo -e "\tDepends: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' /etc/init.d/$service)"
+			echo -e "\tSupervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
+			echo -e "\tDepends: $(awk '/# rc: depends:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
 		}
 		[[ -e /run/service/$service/pid ]] && {
 			echo -e "\tMain PID: $(cat /run/service/$service/pid)"
@@ -131,7 +131,14 @@ case $1 in
 			echo -e "\tRunning since: $(date --date=\"@$(stat /run/service/$service/pid -c '%Y')\")"
 			echo -e "\tSupervising since: $(date --date=\"@$(stat /run/service/$service/supervisor -c '%Y')\")"
 		}
-		tail /var/log/service/$service.log
+		tail /var/log/service/$service.log 2>/dev/null
+		;;
+	--version)
+		echo "This is ${0##*/} from hardclanz-init (0.0.1alpha)"
+		echo 
+		echo "Copyright (C) 2021 Arseniy \"EmptiedSoul\" Lesin"
+		echo "License: GPLv3 or newer"
+	;;
 esac
 
 exit	
