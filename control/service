@@ -11,7 +11,7 @@ get_service_status(){
 	[[ -e "/run/service/$1/stopped" ]] && { echo -e "[ \e[1;33mstopped\e[0m  ] $1"; return; }
 	local status="$(cat /run/service/$1/status)"
 	case $status in
-		run*)		echo -e "[ \e[1;32mrunning\e[0m ] $1";;
+		run*)		echo -e "[ \e[1;32mrunning\e[0m  ] $1";;
 		exited=0*)	echo -e "[  \e[1;32mexited\e[0m  ] $1";;
 		kill*)		echo -e "[  \e[1;31mkilled\e[0m  ] $1";;
 		stop*)		echo -e "[ \e[1;33mstopped\e[0m  ] $1";;
@@ -127,9 +127,9 @@ case $1 in
 		}
 		[[ -e /run/service/$service/pid ]] && {
 			echo -e "\tMain PID: $(cat /run/service/$service/pid)"
-			echo -e "\tSupervisor PID: $(cat /run/service/$)"
-			echo -e "\tRunning since: $(date --date=\"@$(stat /run/service/$service/pid -c '%Y')\")"
-			echo -e "\tSupervising since: $(date --date=\"@$(stat /run/service/$service/supervisor -c '%Y')\")"
+			echo -e "\tSupervisor PID: $(cat /run/service/$service/supervisor)"
+			echo -e "\tRunning since: $(date --date="@$(stat /run/service/$service/pid -c '%Y')")"
+			echo -e "\tSupervising since: $(date --date="@$(stat /run/service/$service/supervisor -c '%Y')")"
 		}
 		tail /var/log/service/$service.log 2>/dev/null
 		;;
