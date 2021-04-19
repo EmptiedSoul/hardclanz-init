@@ -121,15 +121,15 @@ case $1 in
 		}
 		echo "* $service - $(awk '/# rc: description:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
 		[[ -e /run/service/$service ]] && {
-			echo -e "\tStatus: $(cat /run/service/$service/status)"
-			echo -e "\tSupervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
-			echo -e "\tDepends: $(awk '/# rc: depends:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
+			echo -e "    Status: $(cat /run/service/$service/status)"
+			echo -e "    Supervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
+			echo -e "    Depends: $(awk '/# rc: depends:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
 		}
 		[[ -e /run/service/$service/pid ]] && {
-			echo -e "\tMain PID: $(cat /run/service/$service/pid)"
-			echo -e "\tSupervisor PID: $(cat /run/service/$service/supervisor)"
-			echo -e "\tRunning since: $(date --date="@$(stat /run/service/$service/pid -c '%Y')")"
-			echo -e "\tSupervising since: $(date --date="@$(stat /run/service/$service/supervisor -c '%Y')")"
+			echo -e "    Main PID: $(cat /run/service/$service/pid)"
+			echo -e "    Supervisor PID: $(cat /run/service/$service/supervisor)"
+			echo -e "    Running since: $(date --date="@$(stat /run/service/$service/pid -c '%Y')")"
+			echo -e "    Supervising since: $(date --date="@$(stat /run/service/$service/supervisor -c '%Y')")"
 		}
 		tail /var/log/service/$service.log 2>/dev/null
 		;;
