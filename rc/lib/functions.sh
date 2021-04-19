@@ -21,7 +21,7 @@ _echo(){
 	echo -e "$*"
 	[[ -e /run/.s_done ]] && logf=$(echo "/var/log/service/${0##*/}.log")
 		_timespec
-		echo -e $_TIMESTAMP $* | tee /run/bootlog $logf &>/dev/null
+		echo -e $_TIMESTAMP $* | tee -a /run/bootlog $logf &>/dev/null
 }
 
 run_daemon(){

@@ -85,13 +85,13 @@ case $1 in
 		runlevel="$3"
 		{ [[ -z "$service" ]] || [[ -z "$runlevel" ]]; } && \
 			{ echo "Usage: ${0##*/} enable <service> <0-6,S>"; exit 1; }
-		[[ -e "/etc/init.d/$service" ]] || \
+		{ [[ -e "/etc/init.d/$service" ]] || [[ $service == "stop_"* ]]; } ||\
 			{ echo "$service: no such service"; exit 1; }
 		case $runlevel in
 			[0-6]|S) true;;
 			*) echo "Usage: ${0##*/} enable <service> <0-6,S>" && exit 1;;
 		esac
-		grep -q $service /etc/rc.d/$runlevel/depends && \
+		grep -q ^$service /etc/rc.d/$runlevel/depends && \
 			{ echo "$service: already enabled"; exit 1; }
 		echo $service >> /etc/rc.d/$runlevel/depends
 		$0 rc-recompile
@@ -102,13 +102,13 @@ case $1 in
 		runlevel="$3"
 		{ [[ -z "$service" ]] || [[ -z "$runlevel" ]]; } && \
 			{ echo "Usage: ${0##*/} disable <service> <0-6,S>"; exit 1; }
-		[[ -e "/etc/init.d/$service" ]] || \
+		{ [[ -e "/etc/init.d/$service" ]] || [[ $service == "stop_"* ]]; } ||\
 			{ echo "$service: no such service"; exit 1; }
 		case $runlevel in
 			[0-6]|S) true;;
 			*) echo "Usage: ${0##*/} disable <service> <0-6,S>" && exit 1;;
 		esac
-		grep -q $service /etc/rc.d/$runlevel/depends || \
+		grep -q ^$service /etc/rc.d/$runlevel/depends || \
 			{ echo "$service: already disabled"; exit 1; }
 		sed -i "/$service/d" /etc/rc.d/$runlevel/depends
 		$0 rc-recompile
