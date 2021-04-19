@@ -6,8 +6,6 @@ YELLOW_COLOR="\e[1;33m"
 BLUE_COLOR="\e[1;34m"
 CLEAR_COLOR="\e[0m"
 
-[[ ${0##*/} != "service" ]] && mkdir -p /var/log/service/${0##*/}
-
 is_true(){
 	case $1 in 
 		Y*|y*|on|true|OK|ok|1)	return 0;;
@@ -21,14 +19,17 @@ _timespec(){
 
 _echo(){
 	echo -e "$*"
-	_timespec
-	echo -e $_TIMESTAMP $* | tee /run/bootlog /var/log/service/${0##*/}.log &>/dev/null
+	[[ -e /run/.s_done ]] && logf=$(echo "/var/log/service/${0##*/}.log")
+		_timespec
+		echo -e $_TIMESTAMP $* | tee /run/bootlog $logf &>/dev/null
 }
 
 run_daemon(){
 	[[ -n "$niceness" ]] && renice -n $niceness $$
-	exec 2>&1
-	exec 1>>/var/log/service/${0##*/}.log
+	[[ -e /run/.s_done ]] && {
+		exec 2>&1
+		exec 1>>/var/log/service/${0##*/}.log
+	}
 	exec runuser -u ${RUN_DAEMON_USER:-root} -- $*
 }
 

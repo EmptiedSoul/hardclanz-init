@@ -15,9 +15,10 @@ case $1 in
 		echo
 		lastboot=$(cat /var/tmp/lastboot)
 		(( currentboot = lastboot + 1 ))
-		echo $currentboot | tee /run/bootnum /var/tmp/lastboot &>/dev/null
+		echo $currentboot > /run/bootnum
 		make -s $1 -j || /sbin/sulogin
 		echo "hrdrc: Reached runlevel: S" > /dev/kmsg
+		touch /run/.s_done
 		[[ -n $init_stop ]] && /bin/bash
 		;;
 	[1-5])
@@ -26,10 +27,12 @@ case $1 in
 		echo "hrdrc: Reached runlevel: $1" > /dev/kmsg
 		;;
 	0)
+		cat /run/bootnum > /var/tmp/lastboot
 		cd /etc/rc.d
 		{ make -s 0 -j && make -s halt; } || /sbin/sulogin
 		;;
 	6)
+		cat /run/bootnum > /var/tmp/lastboot
 		cd /etc/rc.d
 		{ make -s 6 -j && make -s reboot; } || /sbin/sulogin
 		;;
