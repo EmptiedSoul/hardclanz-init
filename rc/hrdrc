@@ -16,9 +16,11 @@ case $1 in
 		lastboot=$(cat /var/tmp/lastboot)
 		(( currentboot = lastboot + 1 ))
 		echo $currentboot > /run/bootnum
+		echo $(date) > /run/bootdate
 		make -s $1 -j || /sbin/sulogin
 		echo "hrdrc: Reached runlevel: S" > /dev/kmsg
 		touch /run/.s_done
+		echo $(cat /run/bootnum) $(cat /run/bootdate) >> /var/tmp/boottable
 		[[ -n $init_stop ]] && /bin/bash
 		;;
 	[1-5])
