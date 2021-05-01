@@ -20,7 +20,7 @@ case $2 in
 			case $SCRIPT in
 				user|sysinit|shutdown|disabled|enabled) continue;;
 			esac
-			echo -n "stop_$SCRIPT"
+			echo -n "stop_$SCRIPT "
 		done
 		echo
 		for RUNLEVEL in "${RUNLEVELS[@]}"

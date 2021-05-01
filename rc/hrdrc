@@ -24,7 +24,7 @@ case $1 in
 		(( currentboot = lastboot + 1 ))
 		echo $currentboot > /run/bootnum
 		echo $(date) > /run/bootdate
-		make -s $1 -j || /sbin/sulogin
+		make -s sysinit -j || /sbin/sulogin
 		echo "hrdrc: Reached runlevel: S" > /dev/kmsg
 		touch /run/.s_done
 		echo $(cat /run/bootnum) $(cat /run/bootdate) >> /var/tmp/boottable
