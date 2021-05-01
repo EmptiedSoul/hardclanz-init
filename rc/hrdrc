@@ -38,15 +38,15 @@ case $1 in
 		;;
 	0)
 		cat /run/bootnum > /var/tmp/lastboot
-		cd /etc/rc.d/shutdown
 		stop_services
-		{ make -s 0 -j && make -s halt; } || /sbin/sulogin
+		cd /etc/rc.d/shutdown
+		make -s halt -j || /sbin/sulogin
 		;;
 	6)
 		cat /run/bootnum > /var/tmp/lastboot
-		cd /etc/rc.d/shutdown
 		stop_services
-		{ make -s 6 -j && make -s reboot; } || /sbin/sulogin
+		cd /etc/rc.d/shutdown
+		make -s reboot -j || /sbin/sulogin
 		;;
 	*)
 		echo "hrdrc: Usage: hrdrc [0-6]"

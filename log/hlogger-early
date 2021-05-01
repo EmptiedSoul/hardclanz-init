@@ -1,0 +1,13 @@
+#!/bin/bash
+TAG="$1"
+PID="$2"
+LOGFILE="$3"
+HOSTNAME=$(hostname)
+while read line
+do
+	MSG="${MSG}$(date +"%b %-d %T.%N %:z") ${HOSTNAME} ${TAG}[${PID}]: $line\n"
+	[[ -w "$LOGFILE" ]] && {
+		echo -e "$MSG" >> $LOGFILE
+		MSG=""
+	}
+done

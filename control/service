@@ -145,7 +145,7 @@ case $1 in
 	;;
 	_start)
 		$0 is-running $2 || {
-			cd /etc/init.d
+			cd /etc/init.d/$RUNLEVEL
 			RUN_DAEMON_USER=$USER /sbin/hd $HD_OPTS -s $2
 			rm -f /run/service/$2/stopped
 		}

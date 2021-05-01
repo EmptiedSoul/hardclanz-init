@@ -2,12 +2,14 @@
 
 case $2 in
 	shutdown) 
+		runlvl="shutdown"
 		echo	"halt: $(ls -1 $1 | tr '\n' ' ')"
 		echo -e	"\t/etc/init.d/shutdown/.sendsignals && /etc/init.d/shutdown/.halt"
 		echo	"reboot: $(ls -1 $1 | tr '\n' ' ')"
 		echo -e	"\t/etc/init.d/shutdown/.sendsignals && /etc/init.d/shutdown/.reboot"
 	;;
 	sysinit) 
+		runlvl="sysinit"
 		echo	"sysinit: $(ls -1 $1 | tr '\n' ' ')"
 	;;
 	*)
@@ -39,7 +41,7 @@ do
 	INITSCRIPT_USER="$(awk '/# rc: run-as:/  { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	HD_COMMAND_LINE="$(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	echo 	"$initscript: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
-		echo -e "\tHD_OPTS=${HD_COMMAND_LINE} USER=${INITSCRIPT_USER} service _start $initscript"
+		echo -e "\tRUNLEVEL=\"$runlvl\" HD_OPTS=\"${HD_COMMAND_LINE}\" USER=\"${INITSCRIPT_USER}\" service _start $initscript"
 	echo    "stop_$initscript: $(awk '/# rc: stop-depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
-		echo -e "\tSTOPABILITY=${STOPABILITY} service _stop $initscript"
+		echo -e "\tSTOPABILITY=\"${STOPABILITY}\" service _stop $initscript"
 done

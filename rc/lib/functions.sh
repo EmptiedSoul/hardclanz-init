@@ -13,37 +13,13 @@ is_true(){
 	esac
 }
 
-_timespec(){
-	_TIMESTAMP="$(date +"%b %d %T %:z") $(hostname) )"
-}
 
 _echo(){
 	echo -e "$*"
-	{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {
-		[[ -e /run/.s_done ]] && logf=$(echo "/var/log/service/${0##*/}/${0##*/}.status.log") || \
-					 logf=$(echo "/run/log/service/${0##*/}/${0##*/}.status.log")
-		_timespec
-		[[ -e ${logf%/*} ]] || mkdir -p ${logf%/*}
-		echo -e "$_TIMESTAMP" "$*" | tee -a /run/bootlog $logf &>/dev/null
-	}
 }
 
 run_daemon(){
 	[[ -n "$niceness" ]] && renice -n $niceness $$	
-	{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {
-		[[ -e /run/.s_done ]] && {
-			[[ -e /var/log/service/${0##*/} ]] || mkdir -p /var/log/service/${0##*/}
-			exec 2>>/var/log/service/${0##*/}/${0##*/}.stderr.log
-			exec 1>>/var/log/service/${0##*/}/${0##*/}.stdout.log
-			echo -- $(date) ${o##*/} stdout -- 
-			echo -- $(date) ${0##*/} stderr -- >&2
-		} || {
-			exec 2>>/run/log/service/${0##*/}/${0##*/}.stderr.log
-			exec 1>>/run/log/service/${0##*/}/${0##*/}.stdout.log
-			echo -- $(date) ${0##*/} stdout --
-			echo -- $(date) ${0##*/} stderr -- >&2
-		}
-	}
 	exec runuser -u ${RUN_DAEMON_USER:-root} -- $*
 }
 
@@ -92,3 +68,15 @@ eval_retval(){
 [[ -e "/etc/conf.d/${0##*/}.conf" ]] && \
 	. /etc/conf.d/${0##*/}.conf
 
+LOGDIR=/var/log/service/${0##*/}/
+
+{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {
+	[[ -e /run/.s_done ]] && {
+		[[ -e $LOGDIR ]] || mkdir -p $LOGDIR
+		exec 1> >(tee >(/sbin/hlogger ${0##*/} $$ ${LOGDIR}${0##*/}.stdout.log))
+		exec 2> >(tee >(/sbin/hlogger ${0##*/} $$ ${LOGDIR}${0##*/}.stderr.log))
+	} || {
+		exec 1> >(tee >(/sbin/hlogger-early ${0##*/} $$ ${LOGDIR}${0##*/}.stdout.log))
+		exec 2> >(tee >(/sbin/hlogger-early ${0##*/} $$ ${LOGDIR}${0##*/}.stderr.log))
+	}
+}
