@@ -40,17 +40,8 @@ case $1 in
 		popd &>/dev/null;;
 	stop)
 		require_root
-		[[ -e /etc/init.d/stop_$2 ]] && {
-			/etc/init.d/stop_$2 && \
-				{ msg_ok "Stopped $2" 
-					touch /run/service/$2/stopped	
-				} || \
-				msg_fail "Failed to stop $2"
-			exit 0;
-		}
-		pid="$(cat /run/service/$2/supervisor)"
-		kill -15 $pid &>/dev/null || echo "service: unable to kill"
-		touch /run/service/$2/stopped
+		cd /etc/rc.d
+		make -s stop_$2 -j 
 		;;
 	reload)
 		require_root
@@ -78,6 +69,10 @@ case $1 in
 		require_root
 		cd /etc/rc.d
 		hdcompile init.d > Makefile
+		cd /etc/rc.d/sysinit
+		hdcompile sysinit sysinit > Makefile
+		cd /etc/rc.d/shutdown
+		hdcompile shutdown shutdown > Makefile
 		;;
 	enable)
 		require_root
@@ -131,8 +126,30 @@ case $1 in
 			echo -e "    Running since: $(date --date="@$(stat /run/service/$service/pid -c '%Y')")"
 			echo -e "    Supervising since: $(date --date="@$(stat /run/service/$service/supervisor -c '%Y')")"
 		}
-		tail /var/log/service/$service.log 2>/dev/null
+		hlogctl show $service current-boot
 		;;
+	_stop)
+		require_root
+		[[ -e /run/service/$2	      ]] || exit 0
+		[[ -e /run/service/$2/stopped ]] && exit 0
+		is_true "$STOPABLITY"		 && {
+			ACTION=stop /etc/init.d/$2
+			touch /run/service/$2/stopped
+			exit 0
+		}
+		[[ -e /run/service/pid ]] && {
+			kill -15 $(cat /run/service/$2/supervisor)
+			touch /run/service/$2/stopped
+		}
+		exit 0
+	;;
+	_start)
+		$0 is-running $2 || {
+			cd /etc/init.d
+			RUN_DAEMON_USER=$USER /sbin/hd $HD_OPTS -s $2
+			rm -f /run/service/$2/stopped
+		}
+	;;
 	--version)
 		echo "This is ${0##*/} from hardclanz-init (0.0.1alpha)"
 		echo 
@@ -142,22 +159,3 @@ case $1 in
 esac
 
 exit	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

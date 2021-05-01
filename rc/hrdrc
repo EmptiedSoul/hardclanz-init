@@ -6,12 +6,19 @@
 mountpoint /run &>/dev/null || {
 	mount /run
 }
+
 mkdir /run/service &>/dev/null
+
+stop_services(){
+	cd /etc/rc.d 
+	make -s stopall -j
+}
+
 case $1 in
 	S)
-		cd /etc/rc.d
+		cd /etc/rc.d/sysinit
 		echo 
-		echo -e "\t\e[1;32mhardclanz-init\e[0m \e[1mis booting\e[0m \e[1;34m$(cat /etc/hostname)\e[0m"
+		echo -e "\t\e[1;32mhardclanz-init\e[0m \e[1mis booting\e[0m \e[1;34m$(cat /etc/hostname)\e[0m" | tee /dev/kmsg
 		echo
 		lastboot=$(cat /var/tmp/lastboot)
 		(( currentboot = lastboot + 1 ))
@@ -25,17 +32,20 @@ case $1 in
 		;;
 	[1-5])
 		cd /etc/rc.d
+		stop_services
 		make -s $1 -j || /sbin/sulogin
 		echo "hrdrc: Reached runlevel: $1" > /dev/kmsg
 		;;
 	0)
 		cat /run/bootnum > /var/tmp/lastboot
-		cd /etc/rc.d
+		cd /etc/rc.d/shutdown
+		stop_services
 		{ make -s 0 -j && make -s halt; } || /sbin/sulogin
 		;;
 	6)
 		cat /run/bootnum > /var/tmp/lastboot
-		cd /etc/rc.d
+		cd /etc/rc.d/shutdown
+		stop_services
 		{ make -s 6 -j && make -s reboot; } || /sbin/sulogin
 		;;
 	*)

@@ -1,33 +1,45 @@
 #!/bin/bash
 
-RUNLEVELS=(S 0 1 2 3 4 5 6)
-for RUNLEVEL in "${RUNLEVELS[@]}"
-do
-	export RUNLEVEL
-	echo "$RUNLEVEL: $(cat ./$RUNLEVEL/depends | tr '\n' ' ')" 
-	unset RUNLEVEL
-done
-
-#echo    "halt: $(grep stop_ -R ./{S,0,1,2,3,4,5,6} | sed -e 's/^.*://' -e 's/[[:space:]]*$//' | sort | uniq | tr '\n' ' ')"
-echo	"halt: "
-echo -e "\tcd $1 && ./sendsignals && ./halt"
-
-#echo	"reboot: $(grep stop_ -R ./{S,0,1,2,3,4,5,6} | sed -e 's/^.*://' -e 's/[[:space:]]*$//' | sort | uniq | tr '\n' ' ')"
-echo 	"reboot:"
-echo -e	"\tcd $1 && ./sendsignals && ./reboot"
+case $2 in
+	shutdown) 
+		echo	"halt: $(ls -1 $1 | tr '\n' ' ')"
+		echo -e	"\t/etc/init.d/shutdown/.sendsignals && /etc/init.d/shutdown/.halt"
+		echo	"reboot: $(ls -1 $1 | tr '\n' ' ')"
+		echo -e	"\t/etc/init.d/shutdown/.sendsignals && /etc/init.d/shutdown/.reboot"
+	;;
+	sysinit) 
+		echo	"sysinit: $(ls -1 $1 | tr '\n' ' ')"
+	;;
+	*)
+		RUNLEVELS=(1 2 3 4 5)
+		echo -n "stopall: " 
+		for SCRIPT   in $(ls -1 $1)
+		do
+			case $SCRIPT in
+				user|sysinit|shutdown|disabled|enabled) continue;;
+			esac
+			echo -n "stop_$SCRIPT"
+		done
+		echo
+		for RUNLEVEL in "${RUNLEVELS[@]}"
+		do
+			export RUNLEVEL
+			echo "$RUNLEVEL: $(cat ./$RUNLEVEL/depends | tr '\n' ' ')" 
+			unset RUNLEVEL
+		done
+		;;
+esac
 
 for initscript in $(ls -1 $1)
 do
-	case $initscript in
-		sendsignals|lib|Makefile|halt|reboot|stop_*) continue;;
+	case $SCRIPT in
+		user|sysinit|shutdown|disabled|enabled) continue;;
 	esac
+	STOPABILITY="$(awk '/# rc: script-stop:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	INITSCRIPT_USER="$(awk '/# rc: run-as:/  { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	HD_COMMAND_LINE="$(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	echo 	"$initscript: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
-		echo -e "\t{ service is-running $initscript && exit 0; \\"
-		echo -e "\trm -f /run/service/$initscript/stopped; \\"
-		echo -e "\tcd $1 && \\"
-		echo -e	"\tRUN_DAEMON_USER=\"${INITSCRIPT_USER}\" /sbin/hd ${HD_COMMAND_LINE:--o} -s ./$initscript; }"
-	echo -e "stop_$initscript: $(awk '/# rc: stop-depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
-		echo -e "\tservice is-running $initscript && service stop $initscript; exit 0"
+		echo -e "\tHD_OPTS=${HD_COMMAND_LINE} USER=${INITSCRIPT_USER} service _start $initscript"
+	echo    "stop_$initscript: $(awk '/# rc: stop-depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
+		echo -e "\tSTOPABILITY=${STOPABILITY} service _stop $initscript"
 done
