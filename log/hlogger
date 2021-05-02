@@ -5,5 +5,6 @@ LOGFILE="$3"
 HOSTNAME=$(hostname)
 while read line
 do
+	echo "$line"
 	echo "$(date +"%b %-d %T.%N %:z") ${HOSTNAME} ${TAG}[${PID}]: $line" >> $LOGFILE
 done

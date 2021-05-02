@@ -75,8 +75,5 @@ LOGDIR=/var/log/service/${0##*/}/
 		[[ -e $LOGDIR ]] || mkdir -p $LOGDIR
 		exec 1> >(tee >(/sbin/hlogger ${0##*/} $$ ${LOGDIR}${0##*/}.stdout.log))
 		exec 2> >(tee >(/sbin/hlogger ${0##*/} $$ ${LOGDIR}${0##*/}.stderr.log))
-	} || {
-		exec 1> >(tee >(/sbin/hlogger-early ${0##*/} $$ ${LOGDIR}${0##*/}.stdout.log))
-		exec 2> >(tee >(/sbin/hlogger-early ${0##*/} $$ ${LOGDIR}${0##*/}.stderr.log))
 	}
 }
