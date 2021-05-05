@@ -15,7 +15,14 @@ is_true(){
 
 
 _echo(){
-	echo -e "$*"
+	echo -e "$*" > ${RC_DEV_CONSOLE:-/dev/console}
+	{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {i
+		[[ -e /run/.s_done ]] && {
+			logger -p local7.notice -t ${0##*/} --id=$$ "$*"
+		} || {
+			echo -e "$*" >> /run/bootlog 
+		}
+	}
 }
 
 run_daemon(){
@@ -68,12 +75,17 @@ eval_retval(){
 [[ -e "/etc/conf.d/${0##*/}.conf" ]] && \
 	. /etc/conf.d/${0##*/}.conf
 
-LOGDIR=/var/log/service/${0##*/}/
+PID=$$
 
 { is_true $rc_logger && ! is_true $rc_logger_disable; } && {
 	[[ -e /run/.s_done ]] && {
-		[[ -e $LOGDIR ]] || mkdir -p $LOGDIR
-		exec 1> >(tee >(/sbin/hlogger ${0##*/} $$ ${LOGDIR}${0##*/}.stdout.log))
-		exec 2> >(tee >(/sbin/hlogger ${0##*/} $$ ${LOGDIR}${0##*/}.stderr.log))
-	}
+		exec 1> >(logger -p local7.info -t ${0##*/} --id=$PID)
+		exec 2> >(logger -p local7.err  -t ${0##*/} --id=$PID)
+	} || {	
+		exec 1>${RC_DEV_CONSOLE:-/dev/console}
+		exec 2>${RC_DEV_CONSOLE:-/dev/console}
+	} 
+} || {
+	exec 1>${RC_DEV_CONSOLE:-/dev/console}
+	exec 2>${RC_DEV_CONSOLE:-/dev/console}
 }

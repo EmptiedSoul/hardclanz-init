@@ -1,5 +1,8 @@
 #!/bin/bash
 
+exec 1>${RC_DEV_CONSOLE:-/dev/console}
+exec 2>${RC_DEV_CONSOLE:-/dev/console}
+
 [[ "$UID" == 0 ]] || \
 	{ echo "hrdrc: must be superuser"; exit 1; }
 
@@ -18,8 +21,9 @@ case $1 in
 	S)
 		cd /etc/rc.d/sysinit
 		echo 
-		echo -e "\t\e[1;32mhardclanz-init\e[0m \e[1mis booting\e[0m \e[1;34m$(cat /etc/hostname)\e[0m" | tee /dev/kmsg
+		echo -e "\t\e[1;32mhardclanz-init\e[0m \e[1mis booting\e[0m \e[1;34m$(cat /etc/hostname)\e[0m"
 		echo
+		echo "hrdrc: started booting" > /dev/kmsg
 		lastboot=$(cat /var/tmp/lastboot)
 		(( currentboot = lastboot + 1 ))
 		echo $currentboot > /run/bootnum

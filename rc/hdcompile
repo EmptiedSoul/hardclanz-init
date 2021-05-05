@@ -4,9 +4,9 @@ case $2 in
 	shutdown) 
 		runlvl="shutdown"
 		echo	"halt: $(ls -1 $1 | tr '\n' ' ')"
-		echo -e	"\t/etc/init.d/shutdown/.sendsignals && /etc/init.d/shutdown/.halt"
+		echo -e	"\t/etc/init.d/.shutdown/sendsignals; /etc/init.d/.shutdown/umount; /etc/init.d/.shutdown/halt"
 		echo	"reboot: $(ls -1 $1 | tr '\n' ' ')"
-		echo -e	"\t/etc/init.d/shutdown/.sendsignals && /etc/init.d/shutdown/.reboot"
+		echo -e	"\t/etc/init.d/.shutdown/sendsignals; /etc/init.d/.shutdown/umount; /etc/init.d/.shutdown/reboot"
 	;;
 	sysinit) 
 		runlvl="sysinit"
