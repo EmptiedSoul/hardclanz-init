@@ -16,7 +16,7 @@ is_true(){
 
 _echo(){
 	echo -e "$*" > ${RC_DEV_CONSOLE:-/dev/console}
-	{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {i
+	{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {
 		[[ -e /run/.s_done ]] && {
 			logger -p local7.notice -t ${0##*/} --id=$$ "$*"
 		} || {

@@ -1,7 +1,11 @@
 #!/bin/bash
 
-. /etc/rc.d/lib/functions.sh
-
+is_true(){
+	case $1 in
+		Y*|y*|true|on|ok|OK|1)	return 0;;
+			            *)  return 1;;
+	esac
+}
 require_root(){
 	[[ $UID == "0" ]] || { echo "service: must be superuser"; exit 0; }
 }
@@ -137,7 +141,7 @@ case $1 in
 			touch /run/service/$2/stopped
 			exit 0
 		}
-		[[ -e /run/service/pid ]] && {
+		[[ -e /run/service/$2/pid ]] && {
 			kill -15 $(cat /run/service/$2/supervisor)
 			touch /run/service/$2/stopped
 		}
