@@ -14,6 +14,4 @@ install: all
 	install -vm755 rc/hrdrc			/etc/rc.d/hrdrc
 	install -vm755 rc/lib/functions.sh	/etc/rc.d/lib/functions.sh
 	install -vm755 control/service		/usr/bin/service
-	install -vm755 log/hlogger		/sbin/hlogger
-	install -vm755 log/hlogger-early	/sbin/hlogger-early
 	make -C init install
