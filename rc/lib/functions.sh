@@ -6,6 +6,8 @@ YELLOW_COLOR="\e[1;33m"
 BLUE_COLOR="\e[1;34m"
 CLEAR_COLOR="\e[0m"
 
+shopt -s extglob
+
 is_true(){
 	case $1 in 
 		Y*|y*|on|true|OK|ok|1)	return 0;;
@@ -18,7 +20,7 @@ _echo(){
 	echo -e "$*" > ${RC_DEV_CONSOLE:-/dev/console}
 	{ is_true $rc_logger && ! is_true $rc_logger_disable; } && {
 		[[ -e /run/.s_done ]] && {
-			logger -p local7.notice -t ${0##*/} --id=$$ "$*"
+			logger -p local7.notice -t ${0##*/} --id=$$ "${*//\\e[*([0-9;])m}"
 		} || {
 			echo -e "$*" >> /run/bootlog 
 		}
