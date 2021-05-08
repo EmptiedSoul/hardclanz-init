@@ -23,7 +23,7 @@ cgroup_setup(){
 	cgcreate -g ${rc_cg_controllers}:/${rc_cgroup}
 	for variable in "${rc_cg_variables[@]}"
 	do
-		cgset -r $variable -g ${rc_cg_controllers}:/${rc_cgroup}	
+		cgset -r $variable -g /${rc_cgroup}	
 	done
 }
 
