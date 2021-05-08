@@ -15,6 +15,17 @@ is_true(){
 	esac
 }
 
+cgroup_exist(){
+	find /sys/fs/cgroup -type d |& grep "$1$" &>/dev/null
+}
+
+cgroup_setup(){
+	cgcreate -g ${rc_cg_controllers}:/${rc_cgroup}
+	for variable in "${rc_cg_variables[@]}"
+	do
+		cgset -r $variable -g ${rc_cg_controllers}:/${rc_cgroup}	
+	done
+}
 
 _echo(){
 	echo -e "$*" > ${RC_DEV_CONSOLE:-/dev/console}
@@ -25,11 +36,17 @@ _echo(){
 			echo -e "$*" >> /run/bootlog 
 		}
 	}
+	return 0
 }
 
 run_daemon(){
-	[[ -n "$niceness" ]] && renice -n $niceness $$	
-	exec runuser -u ${RUN_DAEMON_USER:-root} -- $*
+	[[ -n "$niceness"  ]] && renice -n $niceness $$	
+	[[ -n "$rc_cgroup" ]] && {
+		cgroup_exist $rc_cgroup || cgroup_setup
+		_cgexec_="cgexec -g ${rc_cg_controllers}:/${rc_cgroup}"
+	}
+	exec ${_cgexec_} runuser -u ${RUN_DAEMON_USER:-root} -- $*
+
 }
 
 msg_ok(){
