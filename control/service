@@ -11,30 +11,43 @@ require_root(){
 }
 
 get_service_status(){
-	[[ -e "/run/service/$1" ]] || { echo -e "[ \e[1;34mdisabled\e[0m ] $1"; return; }
-	[[ -e "/run/service/$1/stopped" ]] && { echo -e "[ \e[1;33mstopped\e[0m  ] $1"; return; }
+	[[ -e "/run/service/$1" ]] || { echo -e " $1 -> \e[1;34mdisabled\e[0m"; return; }
+	[[ -e "/run/service/$1/stopped" ]] && { echo -e " $1 -> \e[1;33mstopped\e[0m"; return; }
 	local status="$(cat /run/service/$1/status)"
 	case $status in
-		run*)		echo -e "[ \e[1;32mrunning\e[0m  ] $1";;
-		exited=0*)	echo -e "[  \e[1;32mexited\e[0m  ] $1";;
-		kill*)		echo -e "[  \e[1;31mkilled\e[0m  ] $1";;
-		stop*)		echo -e "[ \e[1;33mstopped\e[0m  ] $1";;
-		*)		echo -e "[  \e[1;31mfailed\e[0m  ] $1";;
+		run*)		echo -e " $1 -> \e[1;32mrunning\e[0m";;
+		exited=0*)	echo -e " $1 -> \e[1;32mexited\e[0m";;
+		kill*)		echo -e " $1 -> \e[1;31mkilled\e[0m";;
+		stop*)		echo -e " $1 -> \e[1;33mstopped\e[0m";;
+		*)		echo -e " $1 -> \e[1;31mfailed\e[0m";;
 	esac
+}
+service_status_loop(){
+	for service in $(ls -1 $*)
+	do
+		case $service in
+			stop_*|sendsignals|halt|reboot|sysinit|shutdown) continue;;
+		esac
+		get_service_status $service
+	done
+	unset service
 }
 case $1 in
 	list)	ls /etc/init.d;;
-	status)	[[ -z "$2" ]] || { get_service_status $2; exit; }
-		{
-			for service in $(ls -1 /etc/init.d)
-			do
-				case $service in
-					stop_*|sendsignals|halt|reboot) continue;;
-				esac
-				get_service_status $service
-			done
-			unset service
-		};;
+	status)	[[ -z "$2" ]]    || { get_service_status $2; exit; }
+		[[ "$2" == "--all" ]] && {
+			service_status_loop /etc/init.d /etc/init.d/sysinit /etc/init.d/shutdown
+			exit
+		}
+		rlvl=$(runlevel | cut -d' ' -f2)
+		echo -e "Runlevel: \e[1;32m${rlvl}\e[0m"
+		for service in $(cat /etc/rc.d/$rlvl/depends)
+		do
+			get_service_status $service
+		done
+		echo "Sysinit:"
+		service_status_loop /etc/init.d/sysinit
+		;;
 	start)
 		require_root
 		pushd /etc/rc.d &>/dev/null
@@ -53,7 +66,7 @@ case $1 in
 		kill -HUP $pid || echo "service: unable to reload"
 		;;
 	restart)
-		$0 stop $2 && $0 start $2;;
+		$0 stop $2 && sleep 1 && $0 start $2;;
 	get-supervisor)
 		echo "$(cat /run/service/$2/supervisor)";;
 	get-pid)
@@ -114,23 +127,28 @@ case $1 in
 		;;
 	info)
 		service="$2"
+		srvdir="init.d"
 		[[ -e /etc/init.d/$service ]] || {
-			echo "$service: no such service"
-			exit 1;
+			[[ -e /etc/init.d/sysinit/$service ]] && srvdir="init.d/sysinit" || {
+				[[ -e /etc/init.d/shutdown/$service ]] && srvdir="init.d/shutdown" || {
+					echo "service: $service: no such service"
+					exit 1
+				}
+			}
 		}
-		echo "* $service - $(awk '/# rc: description:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
+		echo "* $service - $(awk '/# rc: description:/ { $1=$2=$3="\b"; print $0; }' /etc/$srvdir/$service)"
 		[[ -e /run/service/$service ]] && {
 			echo -e "    Status: $(cat /run/service/$service/status)"
-			echo -e "    Supervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
-			echo -e "    Depends: $(awk '/# rc: depends:/ { $1=$2=$3="\b"; print $0; }' /etc/init.d/$service)"
+			echo -e "    Supervisor opts: $(awk '/# rc: hd-opts:/ { $1=$2=$3="\b"; print $0; }' /etc/$srvdir/$service)"
+			echo -e "    Depends: $(awk '/# rc: depends:/ { $1=$2=$3="\b"; print $0; }' /etc/$srvdir/$service)"
 		}
 		[[ -e /run/service/$service/pid ]] && {
 			echo -e "    Main PID: $(cat /run/service/$service/pid)"
 			echo -e "    Supervisor PID: $(cat /run/service/$service/supervisor)"
 			echo -e "    Running since: $(date --date="@$(stat /run/service/$service/pid -c '%Y')")"
-			echo -e "    Supervising since: $(date --date="@$(stat /run/service/$service/supervisor -c '%Y')")"
+			echo -e "    Supervising since: $(date --date="@$(stat /run/service/$service -c '%Y')")"
 		}
-		hlogctl show $service current-boot
+		grep $service /var/log/service | tail -10
 		;;
 	_stop)
 		require_root
