@@ -15,5 +15,5 @@ install: all
 	install -vm755 rc/lib/functions.sh	/etc/rc.d/lib/functions.sh
 	install -vm755 control/service		/bin/service
 	install -vm755 rc/cgroup-utils/rmcg	/sbin/rmcg
-	/bin/bash -c "for ctl in `awk '/^[^#]/ {print $1}' /proc/cgroups`; do ln -sv rmcg /sbin/rmcg-$ctl; done" 
+	.install-scripts/install-rmcg
 	make -C init install
