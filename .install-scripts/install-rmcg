@@ -4,3 +4,4 @@ for ctl in $(awk '/^[^#]/ { print $1; }' /proc/cgroups)
 do
 	ln -sv rmcg /sbin/rmcg-$ctl
 done
+exit 0
