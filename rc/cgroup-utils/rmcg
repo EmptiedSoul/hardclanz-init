@@ -1,0 +1,3 @@
+#!/bin/bash
+RMCG="${0##*/}"
+rmdir /sys/fs/cgroup/${RMCG//rmcg-}/$1

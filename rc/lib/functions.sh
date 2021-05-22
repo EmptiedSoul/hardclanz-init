@@ -41,11 +41,12 @@ _echo(){
 
 run_daemon(){
 	[[ -n "$niceness"  ]] && renice -n $niceness $$	
+	type runuser &>/dev/null && _runuser_="runuser -u ${RUN_DAEMON_USER:-root} --"
 	[[ -n "$rc_cgroup" ]] && {
 		cgroup_exist $rc_cgroup || cgroup_setup
 		_cgexec_="cgexec -g ${rc_cg_controllers}:/${rc_cgroup}"
 	}
-	exec ${_cgexec_} runuser -u ${RUN_DAEMON_USER:-root} -- $*
+	exec ${_cgexec_} ${_runuser_} $*
 
 }
 
