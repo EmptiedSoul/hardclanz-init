@@ -1,0 +1,25 @@
+#!/bin/bash
+# rc: description: Set up loopback iface
+# rc: depends: mountvirtfs
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+SUCCESS=0
+WARN="-"
+FAIL="*"
+SUCCESS_MSG="Loopback interface brought up"
+FAIL_MSG="Failed to bring loopback interface up"
+
+ip addr add 127.0.0.1/8 label lo dev lo
+ip link set lo up
+eval_retval
+
+SUCCESS=0
+WARN="-"
+FAIL="*"
+SUCCESS_MSG="Hostname set to $(cat /etc/hostname)"
+FAIL_MSG="Failed to set hostname"
+
+hostname $(cat /etc/hostname)
+eval_retval
+

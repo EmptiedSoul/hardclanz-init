@@ -1,0 +1,9 @@
+#!/bin/bash
+# rc: description: Load kernel variables
+# rc: hd-opts: -no
+# rc: depends: mountkernfs
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Loading kernel variables..."
+
+sysctl --system &> /dev/null 

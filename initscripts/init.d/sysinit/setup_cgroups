@@ -1,0 +1,26 @@
+#!/bin/bash
+# rc: hd-opts: -no
+# rc: depends: mountvirtfs
+# rc: description: CGroup setup
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Mounting CGroup Root..."
+
+mount -t tmpfs cgroup_root /sys/fs/cgroup/ \
+	&& msg_ok "Mounted CGroup Root"    \
+	|| msg_fail "Failed to mount CGroup root"
+
+msg_pending "Mounting CGroup controllers..."
+
+mkdir /sys/fs/cgroup/unified
+mount -t cgroup2 unified /sys/fs/cgroup/unified
+
+for controller in $(awk '/^[^#]/ {print $1}' /proc/cgroups)
+do
+	mkdir /sys/fs/cgroup/$controller
+	mount -t cgroup $controller -o $controller /sys/fs/cgroup/$controller
+	echo /sbin/rmcg-$controller > /sys/fs/cgroup/$controller/release_agent
+	echo 1 > /sys/fs/cgroup/$controller/notify_on_release
+done
+msg_ok "Mounted CGroup controllers"
+	

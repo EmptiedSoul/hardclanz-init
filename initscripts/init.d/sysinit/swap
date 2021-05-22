@@ -1,0 +1,14 @@
+#!/bin/bash
+# rc: depends: mountfs udev-activate
+# rc: hd-opts: -no
+# rc: description: Activate swap
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Activating all swap partitions/files..."
+swapon -a 
+retval=$?
+
+(exit $retval) && \
+	msg_ok "All swap partitions/swapfiles activated" || \
+	msg_fail "Failed to activate swapspace"
+exit $retval

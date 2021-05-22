@@ -1,0 +1,16 @@
+#!/bin/bash
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Bringing down the loopback interface..."
+
+SUCCESS=0
+WARN=-
+FAIL=*
+
+EVAL_EXIT="YES"
+SUCCESS_MSG="Loopback interface brought down"
+FAIL_MSG="Failed to bring loopback interface down"
+
+ip link set lo down 
+eval_retval

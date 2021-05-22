@@ -1,0 +1,6 @@
+#!/bin/bash
+# rc: depends: UNUSED
+# rc: hd-opts: UNUSED
+. /etc/rc.d/lib/functions.sh
+
+halt -d -f -i -p

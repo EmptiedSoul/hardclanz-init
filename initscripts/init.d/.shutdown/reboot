@@ -1,0 +1,4 @@
+#!/bin/bash
+# rc: depends: UNUSED
+# rc: hd-opts: UNUSED
+reboot -d -f -i

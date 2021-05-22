@@ -1,0 +1,8 @@
+#!/bin/bash
+# rc: description: Save random seed for next booting
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Saving random seed..."
+
+dd if=/dev/urandom of=/var/tmp/random.seed bs=512 count=1

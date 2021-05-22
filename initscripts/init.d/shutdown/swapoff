@@ -1,0 +1,7 @@
+#!/bin/bash
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Deactivating swapspace..."
+swapoff -a
+msg_ok "Deactivated swapspace"

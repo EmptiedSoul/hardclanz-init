@@ -1,0 +1,13 @@
+#!/bin/bash
+# rc: depends: localnet swap network
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Unmounting all mounted filysystems..."
+sync
+losetup -D
+umount --all --detach-loop --read-only --force \
+	--types notmpfs,nosysfs,nodevtmpfs,noproc,nodevpts >/dev/null && \
+		msg_ok "All filesystem unmounted" || \
+		msg_fail "Failed to unmount filesystems"
+mount -o remount,ro /
+sync

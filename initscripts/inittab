@@ -1,0 +1,23 @@
+id:3:initdefault:
+
+si::sysinit:/etc/rc.d/hrdrc S
+
+10:0:wait:/etc/rc.d/hrdrc 0
+11:S1:wait:/etc/rc.d/hrdrc 1
+12:2:wait:/etc/rc.d/hrdrc 2
+13:3:wait:/etc/rc.d/hrdrc 3
+14:4:wait:/etc/rc.d/hrdrc 4
+15:5:wait:/etc/rc.d/hrdrc 5
+16:6:wait:/etc/rc.d/hrdrc 6
+
+ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now
+
+su:s016:once:/sbin/sulogin
+
+1:2345:respawn:/sbin/agetty --noclear tty1 9600
+2:2345:respawn:/sbin/agetty tty2 9600
+3:2345:respawn:/sbin/agetty tty3 9600
+4:2345:respawn:/sbin/agetty tty4 9600
+5:2345:respawn:/sbin/agetty tty5 9600
+6:2345:respawn:/sbin/agetty tty6 9600
+

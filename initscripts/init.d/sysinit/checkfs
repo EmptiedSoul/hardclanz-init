@@ -1,0 +1,53 @@
+#!/bin/bash
+# rc: description: Check filesystem
+# rc: depends: udev-activate
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Mounting / read-only..."
+
+SUCCESS=0
+WARN="-"
+FAIL="*"
+
+SUCCESS_MSG="/ remounted read-only"
+FAIL_MSG="Cannot remount / read-only, system will be halted in 10 seconds"
+FAIL_ACT="sleep 10 && /etc/init.d/halt"
+
+mount -no remount,ro / >/dev/null
+eval_retval
+
+msg_pending "Checking filesystems..."
+
+fsck -a -A -C -T >/dev/null
+
+errcode=$?
+
+case $errcode in
+	0)
+		msg_ok "Filesystems checked. No errors reported"
+		;;
+	1)
+		msg_warn "Filesystem errors were found and have been corrected"
+		;;
+	2)
+		msg_warn "Filesystem errors were found and have been corrected. Reboot required"
+		msg_warn "Press Enter to reboot..."
+		read 
+		reboot -f
+		;;
+	[3-15])
+		msg_fail "Filesystems error were found and could not be fixed automatically"
+		msg_fail "System cannot continue booting and will be halted until errors are fixed"
+		msg_fail "Boot from rescue CD/USB and run 'fsck' manually"
+		msg_fail "Press Enter to halt"
+		halt -f
+		;;
+	*)
+		msg_fail "Unexpected error occured during filesystem check!"
+		msg_fail "fsck exited with exit code: $errcode"
+		exit $errcode
+		;;
+esac
+
+exit 0

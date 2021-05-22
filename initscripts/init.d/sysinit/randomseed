@@ -1,0 +1,9 @@
+#!/bin/bash
+# rc: description: Feeds /dev/(u)random enthropy
+# rc: depends: mountkernfs
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Seeding /dev/urandom..."
+
+cat /var/tmp/random.seed > /dev/urandom 2>/dev/null

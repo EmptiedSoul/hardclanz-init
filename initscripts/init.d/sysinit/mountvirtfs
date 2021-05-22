@@ -1,0 +1,37 @@
+#!/bin/bash
+# rc: depends:
+# rc: description: Mount kernel filesystems
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+mkdir -p /run/{lock,shm}
+chmod 1777 /run/{lock,shm}
+
+msg_pending "Mounting kernel filesystems..."
+
+if ! mountpoint /proc >/dev/null; then
+	mount -o nosuid,noexec,nodev /proc || failed=1
+fi
+
+echo "${LOGLEVEL}" > /proc/sys/kernel/printk
+
+if ! mountpoint /sys >/dev/null; then
+	mount -o nosuid,noexec,nodev /sys || failed=1
+fi
+
+if ! mountpoint /dev >/dev/null; then
+	mount -o mode=0755,nosuid /dev  || failed=1
+fi
+ 
+ln -sfn /run/shm /dev/shm
+
+SUCCESS=0
+FAIL=1
+WARN="-"
+
+EVAL_EXIT="YES"
+SUCCESS_MSG="Kernel filesystems mounted"
+FAIL_MSG="Failed to mount kernel filesystems"
+
+(exit ${failed})
+eval_retval

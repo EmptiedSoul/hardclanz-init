@@ -1,0 +1,7 @@
+#!/bin/bash
+# rc: depends: mountvirtfs
+# rc: description: Start Udevd
+# rc: hd-opts: -kt5
+. /etc/rc.d/lib/functions.sh
+
+run_daemon /sbin/udevd

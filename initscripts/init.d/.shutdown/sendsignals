@@ -1,0 +1,13 @@
+#!/bin/bash
+# rc: depends: UNUSED
+# rc: hd-opts: UNUSED
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Sending all processes the TERM (15) signal"
+killall5 -15
+sleep ${KILL_DELAY:-3}
+msg_ok "Sent all processes the TERM (15) signal"
+msg_pending "Killing remaining processes..."
+killall5 -9
+sleep ${KILL_DELAY:-3}
+msg_ok "Killed remaining processes"

@@ -1,0 +1,12 @@
+#!/bin/bash
+# rc: description: Copy udevd rules
+# rc: depends: udev-activate mountfs
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+for file in /run/udev/tmp-rules--*; do
+	dest=${file##*tmp-rules--}
+	[[ "$dest" == '*' ]] && break;
+	cat $file >> /etc/udev/rules.d/$dest
+	rm -f $file
+done

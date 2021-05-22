@@ -1,0 +1,13 @@
+#!/bin/bash
+# rc: depends: udevd
+# rc: description: Device management daemon
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Coldplugging discovered devices..."
+/sbin/udevadm trigger --action=add	--type=subsystems
+/sbin/udevadm trigger --action=add	--type=devices
+/sbin/udevadm trigger --action=change	--type=devices
+/sbin/udevadm settle
+[[ -x /sbin/vgchange ]] && /sbin/vgchange -a y &>/dev/null
+msg_ok "Discovered devices coldplugged"

@@ -1,0 +1,30 @@
+#!/bin/bash
+# rc: description: Mount filesystems
+# rc: depends: udev-activate checkfs
+# rc: hd-opts: -no
+. /etc/rc.d/lib/functions.sh
+
+msg_pending "Remounting root read-write..."
+
+SUCCESS=0
+WARN="-"
+FAIL="*"
+
+SUCCESS_MSG="Root remounted read-write"
+FAIL_MSG="Failed to remount root read-write"
+
+mount -o remount,rw / >/dev/null
+eval_retval
+
+msg_pending "Mounting remaining filesystems..."
+
+SUCCESS=0
+WARN="-"
+FAIL="*"
+EVAL_EXIT="YES"
+
+SUCCESS_MSG="Remaining filesystems mounted"
+FAIL_MSG="Failed to mount remaining filesystems"
+mkdir /dev/pts &>/dev/null
+mount -aF --test-opts no_netdev >/dev/null
+eval_retval
