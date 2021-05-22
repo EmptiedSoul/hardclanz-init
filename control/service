@@ -34,11 +34,11 @@ service_status_loop(){
 }
 case $1 in
 	list)	ls /etc/init.d;;
-	status)	[[ -z "$2" ]]    || { get_service_status $2; exit; }
-		[[ "$2" == "--all" ]] && {
+	status)	[[ "$2" == "--all" ]] && {
 			service_status_loop /etc/init.d /etc/init.d/sysinit /etc/init.d/shutdown
 			exit
 		}
+		[[ -z "$2" ]] || { get_service_status $2; exit; }
 		rlvl=$(runlevel | cut -d' ' -f2)
 		echo -e "Runlevel: \e[1;32m${rlvl}\e[0m"
 		for service in $(cat /etc/rc.d/$rlvl/depends)
