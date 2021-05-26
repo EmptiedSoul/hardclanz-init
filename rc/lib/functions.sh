@@ -8,6 +8,20 @@ CLEAR_COLOR="\e[0m"
 
 shopt -s extglob
 
+require(){
+	type inotifywait &>/dev/null && {
+		[[ -f $1 ]] && return
+		inotifywait $1 &>/dev/null
+		return
+	} || {
+		while true
+		do
+			[[ -f $1 ]] && return
+			sleep 0.1
+		done
+	}
+}
+
 is_true(){
 	case $1 in 
 		Y*|y*|on|true|OK|ok|1)	return 0;;
