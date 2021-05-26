@@ -110,7 +110,7 @@ int main(int argc, char* argv[], char* envp[]){
 		case 0:
 			setsid(); 
 			supervising:
-			openlog(NULL, LOG_PID, LOG_DAEMON); 
+			openlog(NULL, LOG_PID, LOG_LOCAL7); 
 			syslog(LOG_INFO, "Started supervisor, pid=%d", getpid());
 			closelog();
 			snprintf(service_dir, 1024, "/run/service/%s", command);
@@ -124,13 +124,13 @@ int main(int argc, char* argv[], char* envp[]){
 			restart: 
 			switch(pid = fork()){
 				case -1:
-					openlog(NULL, LOG_PID, LOG_DAEMON); 
+					openlog(NULL, LOG_PID, LOG_LOCAL7); 
 					syslog(LOG_ERR, "Failed to fork: %s", strerror(errno));
 					closelog();
 					exit(1);
 					break;
 				case 0:
-					openlog(NULL, LOG_PID, LOG_DAEMON);
+					openlog(NULL, LOG_PID, LOG_LOCAL7);
 					syslog(LOG_INFO, "Executing: %s, pid=%d", command, getpid());
 					closelog();
 					FILE* hd_pidfile_fd 		= fopen(hd_pidfile, "w");
@@ -143,7 +143,7 @@ int main(int argc, char* argv[], char* envp[]){
 					fclose(service_pidfile_fd);
 					fclose(service_statfile_fd);
 					if (execle(command, command, NULL, envp) == -1){
-						openlog(NULL, LOG_PID, LOG_DAEMON);
+						openlog(NULL, LOG_PID, LOG_LOCAL7);
 						syslog(LOG_ERR, "Failed to execute %s: %s", command, strerror(errno));
 						closelog();
 						remove(hd_pidfile);
@@ -163,7 +163,7 @@ int main(int argc, char* argv[], char* envp[]){
 					}else{
 						fprintf(service_statfile_fd, "killed      ");
 					}
-					openlog(NULL, LOG_PID, LOG_DAEMON); 
+					openlog(NULL, LOG_PID, LOG_LOCAL7); 
 					syslog(LOG_INFO, "%s exited", command);
 					closelog();
 					fclose(hd_pidfile_fd);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[], char* envp[]){
 					if (WIFEXITED(status)){
 						if (WEXITSTATUS(status) == 0){
 							fprintf(service_statfile_fd, "exited=0   ");
-							openlog(NULL, LOG_PID, LOG_DAEMON); 
+							openlog(NULL, LOG_PID, LOG_LOCAL7); 
 							syslog(LOG_INFO, "%s exited with 0 exit code", command);
 							closelog();
 							fclose(hd_pidfile_fd);
@@ -200,7 +200,7 @@ int main(int argc, char* argv[], char* envp[]){
 				}else{
 					fprintf(service_statfile_fd, "killed       ");
 				}
-				openlog(NULL, LOG_PID, LOG_DAEMON); 
+				openlog(NULL, LOG_PID, LOG_LOCAL7); 
 				syslog(LOG_INFO, "%s exited", command);
 				closelog();
 				fclose(hd_pidfile_fd);

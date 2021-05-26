@@ -1,6 +1,6 @@
 all: supervision/hd rc/hdcompile rc/hrdrc rc/lib/functions.sh sysvinit control/service
 supervision/hd:
-	gcc supervision/hd.c -o supervision/hd -O3 -DNDEBUG
+	gcc supervision/hd.c -o supervision/hd -Os -DNDEBUG
 sysvinit:
 	make -C init -j`nproc`
 clean:

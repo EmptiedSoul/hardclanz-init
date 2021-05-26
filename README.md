@@ -6,7 +6,7 @@ SysV-style supervision-based init system
  - [X] Conf.d magic
  - [X] Easy service setup (even compared to systemd!)
  - [X] CGroup support
- - [X] Simpicity<br/>
+ - [X] Simplicity<br/>
  
 _Want to suggest a feature? Open a GitHub issue_
 ### Installation

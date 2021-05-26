@@ -41,12 +41,11 @@ _echo(){
 
 run_daemon(){
 	[[ -n "$niceness"  ]] && renice -n $niceness $$	
-	type runuser &>/dev/null && _runuser_="runuser -u ${RUN_DAEMON_USER:-root} --"
 	[[ -n "$rc_cgroup" ]] && {
 		cgroup_exist $rc_cgroup || cgroup_setup
 		_cgexec_="cgexec -g ${rc_cg_controllers}:/${rc_cgroup}"
 	}
-	exec ${_cgexec_} ${_runuser_} $*
+	exec ${_cgexec_} $*
 
 }
 
@@ -99,8 +98,8 @@ PID=$$
 
 { is_true $rc_logger && ! is_true $rc_logger_disable; } && {
 	[[ -e /run/.s_done ]] && {
-		exec 1> >(logger -p local7.info -t ${0##*/} --id=$PID)
-		exec 2> >(logger -p local7.err  -t ${0##*/} --id=$PID)
+		exec 1> >(exec logger -p local7.info -t ${0##*/} --id=$PID)
+		exec 2> >(exec logger -p local7.err  -t ${0##*/} --id=$PID)
 	} || {	
 		exec 1>${RC_DEV_CONSOLE:-/dev/console}
 		exec 2>${RC_DEV_CONSOLE:-/dev/console}

@@ -23,7 +23,7 @@ get_service_status(){
 	esac
 }
 service_status_loop(){
-	for service in $(ls -1 $*)
+	for service in $(ls -1 $* | sed -e 's/^.*\/*\///' -e '/sysinit/d' -e '/shutdown/d')
 	do
 		case $service in
 			stop_*|sendsignals|halt|reboot|sysinit|shutdown) continue;;
@@ -35,7 +35,7 @@ service_status_loop(){
 case $1 in
 	list)	ls /etc/init.d;;
 	status)	[[ "$2" == "--all" ]] && {
-			service_status_loop /etc/init.d /etc/init.d/sysinit /etc/init.d/shutdown
+			service_status_loop /etc/init.d/*
 			exit
 		}
 		[[ -z "$2" ]] || { get_service_status $2; exit; }
