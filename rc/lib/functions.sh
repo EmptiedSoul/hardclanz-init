@@ -8,18 +8,17 @@ CLEAR_COLOR="\e[0m"
 
 shopt -s extglob
 
+abort(){
+	kill -USR2 $(cat /run/service/${0##*/}/supervisor)
+	exit $1
+}
+
 require(){
-	type inotifywait &>/dev/null && {
-		[[ -f $1 ]] && return
-		inotifywait $1 &>/dev/null
-		return
-	} || {
-		while true
-		do
-			[[ -f $1 ]] && return
-			sleep 0.1
-		done
-	}
+	while true
+	do
+		[[ -e $1 ]] && return
+		sleep ${POLL_DELAY:-0.01}
+	done
 }
 
 is_true(){
@@ -106,7 +105,7 @@ eval_retval(){
 [[ -e "/etc/rc.conf" ]] && \
 	. /etc/rc.conf
 [[ -e "/etc/conf.d/${0##*/}.conf" ]] && \
-	. /etc/conf.d/${0##*/}.conf
+	. /etc/conf.d/${0##*/}
 
 PID=$$
 
