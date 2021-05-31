@@ -104,7 +104,7 @@ eval_retval(){
 
 [[ -e "/etc/rc.conf" ]] && \
 	. /etc/rc.conf
-[[ -e "/etc/conf.d/${0##*/}.conf" ]] && \
+[[ -e "/etc/conf.d/${0##*/}" ]] && \
 	. /etc/conf.d/${0##*/}
 
 PID=$$
