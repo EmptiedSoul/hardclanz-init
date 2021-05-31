@@ -42,6 +42,6 @@ do
 	HD_COMMAND_LINE="$(awk '/# rc: hd-opts:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 	echo 	"$initscript: $(awk '/# rc: depends:/ { $1=$2=$3=""; print $0; }' $1/$initscript)"
 		echo -e "\tRUNLEVEL=\"$runlvl\" HD_OPTS=\"${HD_COMMAND_LINE}\" USER=\"${INITSCRIPT_USER}\" service _start $initscript"
-	echo    "stop_$initscript: $(grep "# rc: depends:.* $initscript " -R $1 | sed -e 's/:.*$//' -e "s/$1\///" |awk '{ print "stop_"$0; }'| tr '\n' ' ')"
+	echo    "stop_$initscript: $(grep "# rc: depends:.* $initscript .*" -R $1 | sed -e 's/:.*$//' -e "s/$1\///" |awk '{ print "stop_"$0; }'| tr '\n' ' ')"
 		echo -e "\tSTOPABILITY=\"${STOPABILITY}\" service _stop $initscript"
 done
