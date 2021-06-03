@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH="/sbin:$PATH"
+
 is_true(){
 	case $1 in
 		Y*|y*|true|on|ok|OK|1)	return 0;;
@@ -168,7 +170,9 @@ case $1 in
 				done
 			}
 		}
-		grep $service /var/log/sys* | tail
+		[[ -r /var/log/sys* ]] && {
+			grep $service /var/log/sys* | tail
+		}
 		;;
 	_stop)
 		require_root
