@@ -57,6 +57,11 @@ case $1 in
 		popd &>/dev/null;;
 	stop)
 		require_root
+		is_true $by_init || {
+			echo $* > /run/srvcmd
+			telinit a
+			exit 0
+		}
 		cd /etc/rc.d
 		make -s stop_$2 -j 
 		;;
@@ -148,7 +153,22 @@ case $1 in
 			echo -e "    Running since: $(date --date="@$(stat /run/service/$service/pid -c '%Y')")"
 			echo -e "    Supervising since: $(date --date="@$(stat /run/service/$service -c '%Y')")"
 		}
-		grep $service /var/log/service | tail -10
+		[[ -e /etc/conf.d/$service ]] && {
+			. /etc/conf.d/$service
+			[[ -n $niceness  ]] && {
+				echo -e "    Niceness: $niceness"
+			}
+			[[ -n $rc_cgroup ]] && {
+				echo -e "    CGroup: ${rc_cg_controllers}:/${rc_cgroup}"
+			}
+			[[ -n ${rc_cg_variables[@]} ]] && {
+				for cgvar in "${rc_cg_variables[@]}"
+				do
+					echo -e "    CGroup Variable: $cgvar" 	
+				done
+			}
+		}
+		grep $service /var/log/sys* | tail
 		;;
 	_stop)
 		require_root

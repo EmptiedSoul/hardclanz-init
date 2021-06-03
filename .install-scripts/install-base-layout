@@ -1,0 +1,20 @@
+#!/bin/bash
+
+mkdir -pv /etc/rc.d/{1..5}
+mkdir -pv /etc/rc.d/{lib,shutdown,sysinit}
+
+for i in {1..5}
+do 
+	touch -v /etc/rc.d/$i/depends
+done
+
+ln -sv /etc/init.d/ 		/etc/rc.d/init.d
+ln -sv /etc/init.d/sysinit	/etc/rc.d/sysinit/sysinit
+ln -sv /etc/init.d/shutdown	/etc/rc.d/shutdown/shutdown
+
+install -vm755 rc/hrdrc 		/etc/rc.d/hrdrc
+install -vm755 rc/lib/functions.sh	/etc/rc.d/lib/functions.sh
+install -vm755 rc/hdcompile		/sbin/hdcompile
+install -vm755 rc/run-service		/sbin/run-service
+install -vm755 control/service		/bin/service
+

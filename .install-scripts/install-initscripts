@@ -2,10 +2,10 @@
 
 [[ "$install_inits" == "yes" ]] || exit 0
 
-mv /etc/rc.d 	/etc/rc.d.bk
-mv /etc/init.d	/etc/init.d.bk
-mv /etc/inittab /etc/inittab.bk
+mv /etc/init.d	/etc/init.d~
+mv /etc/inittab /etc/inittab~
 
-mkdir /etc/rc.d /etc/init.d
+mkdir /etc/init.d
 cp -vr initscripts/init.d/* /etc/init.d/
+cp -vr initscripts/init.d/.shutdown /etc/init.d/
 cp -v  initscripts/inittab  /etc/inittab

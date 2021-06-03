@@ -1,0 +1,4 @@
+#!/bin/sh
+export by_init=yes
+/bin/service `cat /run/srvcmd`
+rm /run/srvcmd

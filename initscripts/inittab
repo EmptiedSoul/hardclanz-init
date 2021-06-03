@@ -21,3 +21,4 @@ su:s016:once:/sbin/sulogin
 5:2345:respawn:/sbin/agetty tty5 9600
 6:2345:respawn:/sbin/agetty tty6 9600
 
+srv:a:once:/sbin/run-service

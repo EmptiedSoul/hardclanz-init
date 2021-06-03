@@ -32,7 +32,7 @@ case $1 in
 		echo "hrdrc: Reached runlevel: S" > /dev/kmsg
 		touch /run/.s_done
 		echo $(cat /run/bootnum) $(cat /run/bootdate) >> /var/tmp/boottable
-		[[ -n $init_stop ]] && /bin/bash
+		grep -wqs single /proc/cmdline && /bin/sh
 		;;
 	[1-5])
 		cd /etc/rc.d
