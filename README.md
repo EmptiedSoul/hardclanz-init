@@ -1,3 +1,4 @@
+Beware! Its a prototype - major changes are imminent!
 # hardclanz-init
 SysV-style supervision-based init system
 ### Features
